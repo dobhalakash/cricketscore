@@ -1,0 +1,136 @@
+<div class="auction-container">
+  <div class="auction-header">
+    <div class="header-content">
+      <h1 class="auction-title">
+        <span class="title-icon">💰</span>
+        RCPL Auction Center
+      </h1>
+      <div class="auction-status">
+        <span class="status-indicator live"></span>
+        <span class="status-text">Live Auction</span>
+      </div>
+    </div>
+    <div class="auction-timer">
+      <div class="timer-label">Next Player In:</div>
+      <div class="timer-value">{{ auctionTimer }}</div>
+    </div>
+  </div>
+
+  <div class="auction-stats">
+    <div class="stat-item">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <span class="stat-label">Total Players</span>
+        <span class="stat-value">{{ availablePlayers.length }}</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">💎</div>
+      <div class="stat-content">
+        <span class="stat-label">Players Sold</span>
+        <span class="stat-value">{{ soldPlayers.length }}</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <span class="stat-label">Total Spent</span>
+        <span class="stat-value">₹{{ getTotalSpent() }}L</span>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-content">
+        <span class="stat-label">Teams</span>
+        <span class="stat-value">{{ teams.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="auction-main">
+    <div class="current-player-section">
+      <h2 class="section-title">Current Player</h2>
+      <div class="current-player-card" *ngIf="currentAuctionPlayer">
+        <div class="player-spotlight">
+          <div class="player-image">
+            <span class="player-initials">{{ getInitials(currentAuctionPlayer.playerName) }}</span>
+          </div>
+          <div class="player-main-info">
+            <h3 class="player-name">{{ currentAuctionPlayer.playerName }}</h3>
+            <p class="player-details">{{ getPlayerDetails(currentAuctionPlayer.playerId) }}</p>
+            <div class="price-section">
+              <div class="base-price">
+                <span class="price-label">Base Price:</span>
+                <span class="price-amount">₹{{ currentAuctionPlayer.basePrice.toLocaleString() }}</span>
+              </div>
+              <div class="current-bid">
+                <span class="bid-label">Current Bid:</span>
+                <span class="bid-amount">₹{{ currentAuctionPlayer.currentBid.toLocaleString() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bidding-section">
+          <div class="team-bids">
+            <h4>Team Bids</h4>
+            <div class="bid-controls">
+              <select [(ngModel)]="selectedTeam" class="team-select">
+                <option value="">Select Team</option>
+                <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
+              </select>
+              <input 
+                type="number" 
+                [(ngModel)]="bidAmount" 
+                [min]="currentAuctionPlayer.currentBid + 50000"
+                step="50000"
+                placeholder="Bid Amount"
+                class="bid-input">
+              <button 
+                class="bid-btn"
+                (click)="placeBid()"
+                [disabled]="!selectedTeam || !bidAmount">
+                Place Bid
+              </button>
+            </div>
+          </div>
+          
+          <div class="quick-actions">
+            <button class="action-btn sold" (click)="markAsSold()">
+              <span class="btn-icon">✅</span>
+              Mark as Sold
+            </button>
+            <button class="action-btn unsold" (click)="markAsUnsold()">
+              <span class="btn-icon">❌</span>
+              Mark as Unsold
+            </button>
+            <button class="action-btn next" (click)="nextPlayer()">
+              <span class="btn-icon">⏭️</span>
+              Next Player
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auction-queue">
+      <h2 class="section-title">Auction Queue</h2>
+      <div class="queue-list">
+        <div 
+          *ngFor="let player of auctionQueue; let i = index" 
+          class="queue-item"
+          [class.next]="i === 0"
+          (click)="selectPlayer(player)">
+          <div class="queue-number">{{ i + 1 }}</div>
+          <div class="queue-player-info">
+            <span class="queue-player-name">{{ player.playerName }}</span>
+            <span class="queue-player-price">₹{{ player.basePrice.toLocaleString() }}</span>
+          </div>
+          <div class="queue-status" [class]="player.status">
+            {{ player.status | titlecase }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
